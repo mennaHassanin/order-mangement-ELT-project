@@ -4,7 +4,6 @@ from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 import requests
-import pandas as pd
 import logging
 
 GCS_BUCKET = 'ready-d25-postgres-to-gcs'
@@ -18,7 +17,7 @@ API_ENDPOINTS = {
 }
 
 DEFAULT_ARGS = {
-    'retries': 1,
+    'retries': 2,
 }
 
 def create_api_to_bq_dag(endpoint_name, api_url):
@@ -30,15 +29,13 @@ def create_api_to_bq_dag(endpoint_name, api_url):
         response = requests.get(api_url)
         if response.status_code != 200:
             raise Exception(f"failed to fetch data from api: {response.status_code}, {response.text}")
-        data = response.json()
-        # convert from json to csv
-        df = pd.DataFrame(data) 
-        csv_data = df.to_csv(index=False)
+        if not response.content :
+            raise Exception("the response is empty")
         
         gcs_hook.upload(  # function to upload csv file to gcs
             bucket_name=GCS_BUCKET,
             object_name=gcs_path,
-            data=csv_data,
+            data=response.content,
             mime_type='text/csv',
         )
         logging.info(f"Data from {endpoint_name} uploaded to GCS: {gcs_path}")
