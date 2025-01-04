@@ -11,9 +11,7 @@ PG_CONN_ID = 'postgres_conn'
 FOLDER_NAME = 'menna'
 TABLES_TO_TRANSFER = ['products', 'product_category_name_translation', 'orders','order_items','customers','geolocation']
 
-
-# DAG for each table
-for table in TABLES_TO_TRANSFER:
+def create_table_execution_dag(table):
     with DAG(
         f'transfer_{table}_pg-to-bq-menna',
         start_date=days_ago(1),
@@ -42,3 +40,7 @@ for table in TABLES_TO_TRANSFER:
 
 
         extract_pg_to_gcs >> load_pg_to_bq
+        return dag
+
+for table in TABLES_TO_TRANSFER:
+    globals()[f'transfer_{table}_pg_to_bq_menna'] = create_table_execution_dag(table)
