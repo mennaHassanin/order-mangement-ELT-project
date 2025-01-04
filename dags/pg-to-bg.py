@@ -6,7 +6,7 @@ from airflow.utils.dates import days_ago
 
 GCS_BUCKET = 'ready-d25-postgres-to-gcs'
 BQ_PROJECT = 'ready-de-25'
-BQ_DATASET = 'playground'
+BQ_DATASET = 'olist_menna'
 PG_CONN_ID = 'postgres_conn'
 FOLDER_NAME = 'menna'
 TABLES_TO_TRANSFER = ['products', 'product_category_name_translation', 'orders','order_items','customers','geolocation']
