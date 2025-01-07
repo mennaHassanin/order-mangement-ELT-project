@@ -39,13 +39,13 @@ def create_table_execution_dag(table):
         load_pg_to_bq = GCSToBigQueryOperator(
             task_id=f'load_{table}_to_bq',
             bucket=GCS_BUCKET,
-            source_objects=f'{FOLDER_NAME}/{table}/{table}.csv',
+            source_objects=[f'{FOLDER_NAME}/{table}/{table}.csv'],
             destination_project_dataset_table=f'{BQ_PROJECT}.{BQ_DATASET}.{table}',
             source_format='CSV',
             write_disposition='WRITE_TRUNCATE',
             create_disposition='CREATE_IF_NEEDED',
             skip_leading_rows=1,
-            schema = schema_fields,
+            schema_fields = schema_fields,
         )
 
 
