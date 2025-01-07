@@ -32,7 +32,7 @@ def create_api_to_bq_dag(endpoint_name, api_url):
         if not response.content :
             raise Exception("the response is empty")
         
-        gcs_hook.upload(  # function to upload csv file to gcs
+        gcs_hook.upload(
             bucket_name=GCS_BUCKET,
             object_name=gcs_path,
             data=response.content,
