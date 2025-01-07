@@ -5,6 +5,8 @@ from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
 import requests
 import logging
+import json
+from pathlib import Path
 
 GCS_BUCKET = 'ready-d25-postgres-to-gcs'
 BQ_PROJECT = 'ready-de-25'
@@ -39,7 +41,13 @@ def create_api_to_bq_dag(endpoint_name, api_url):
             mime_type='text/csv',
         )
         logging.info(f"Data from {endpoint_name} uploaded to GCS: {gcs_path}")
+    
+    current_file_path = Path(__file__).resolve()
+    parent_directory = current_file_path.parent
+    schema_file_path = parent_directory / f"{endpoint_name}.json"
 
+    with open(schema_file_path) as schema_file:
+        schema_fields = json.load(schema_file)
 
     with DAG(
         f'transfer_{endpoint_name}_api_to_bg_menna',
@@ -52,6 +60,7 @@ def create_api_to_bq_dag(endpoint_name, api_url):
             task_id=f'fetch_{endpoint_name}_to_gcs',
             python_callable=fetch_data_from_api,
         )
+
         load_to_bq_task = GCSToBigQueryOperator(
             task_id=f'load_{endpoint_name}_to_bq',
             bucket=GCS_BUCKET,
@@ -60,7 +69,8 @@ def create_api_to_bq_dag(endpoint_name, api_url):
             source_format='CSV',
             write_disposition='WRITE_TRUNCATE',
             create_disposition='CREATE_IF_NEEDED',
-            autodetect=True,
+            skip_leading_rows=1,
+            schema_fields = schema_fields,
         )
         
         fetch_api_to_gcs >> load_to_bq_task
