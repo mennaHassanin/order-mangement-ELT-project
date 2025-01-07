@@ -1,5 +1,6 @@
 from airflow import DAG
-from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator , GCSDeleteObjectsOperator
+from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
+from airflow.providers.google.cloud.operators.gcs import GCSDeleteObjectsOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.utils.dates import days_ago
 import json
