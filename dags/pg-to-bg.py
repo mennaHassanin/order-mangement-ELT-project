@@ -1,6 +1,5 @@
 from airflow import DAG
 from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
-from airflow.providers.google.cloud.operators.gcs import GCSDeleteObjectsOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.utils.dates import days_ago
 import json
@@ -27,13 +26,6 @@ def create_table_execution_dag(table):
         start_date=days_ago(1),
         catchup=False,
     ) as dag:
-        delete_gcs_folder = GCSDeleteObjectsOperator(
-        task_id='delete_gcs_folder',
-        bucket_name=GCS_BUCKET,
-        prefix=f'{FOLDER_NAME}/',  # Replace with your GCS folder path
-        fail_if_missing=False  # Avoid failure if the folder doesn't exist
-        )
-
         extract_pg_to_gcs = PostgresToGCSOperator(
             task_id=f'extract_{table}_to_gcs',
             postgres_conn_id=PG_CONN_ID,
@@ -57,7 +49,7 @@ def create_table_execution_dag(table):
         )
 
 
-        delete_gcs_folder>>extract_pg_to_gcs >> load_pg_to_bq
+        extract_pg_to_gcs >> load_pg_to_bq
         return dag
 
 for table in TABLES_TO_TRANSFER:
