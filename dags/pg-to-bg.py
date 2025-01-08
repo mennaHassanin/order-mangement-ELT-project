@@ -45,6 +45,7 @@ def create_table_execution_dag(table):
             write_disposition='WRITE_TRUNCATE',
             create_disposition='CREATE_IF_NEEDED',
             skip_leading_rows=1,
+            allow_quoted_newlines=True,
             schema_fields = schema_fields,
         )
 
