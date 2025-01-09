@@ -36,8 +36,7 @@ with DAG(
         task_id="create-workflow-invocation",
         project_id=PROJECT_ID,
         region=REGION,
-        repository_id=REPOSITORY_ID,
-        workspace_id=WORKSPACE_ID, 
+        repository_id=REPOSITORY_ID, 
         workflow_invocation={
             "compilation_result": "{{ task_instance.xcom_pull('create-compilation-result')['name'] }}"
         },
