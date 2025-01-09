@@ -23,7 +23,7 @@ with DAG(
         project_id=PROJECT_ID,
         region=REGION,
         repository_id=REPOSITORY_ID,
-        workspace_id=WORKSPACE_ID,
+        workspace=WORKSPACE_ID,
         compilation_result={
             "code_compilation_config": {
                 "environment": "default"
