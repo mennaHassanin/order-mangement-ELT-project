@@ -24,10 +24,12 @@ with DAG(
         region=REGION,
         repository_id=REPOSITORY_ID,
         workspace=WORKSPACE_ID,
-        compilation_result={
-            "code_compilation_config": {
-                "environment": "default"
-            }
+            compilation_result={
+            "git_commitish": "main",  # Use the correct git branch name if needed
+            "workspace": (
+                f"projects/{PROJECT_ID}/locations/{REGION}/repositories/{REPOSITORY_ID}/"
+                f"workspaces/{WORKSPACE_ID}"
+            ),
         },
     )
 
