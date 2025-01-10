@@ -2,6 +2,7 @@ from airflow import DAG
 from airflow.providers.google.cloud.transfers.postgres_to_gcs import PostgresToGCSOperator
 from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQueryOperator
 from airflow.utils.dates import days_ago
+from datetime import timedelta
 import json
 from pathlib import Path
 
@@ -10,8 +11,12 @@ BQ_PROJECT = 'ready-de-25'
 BQ_DATASET = 'olist_menna'
 PG_CONN_ID = 'postgres_conn'
 FOLDER_NAME = 'menna'
-TABLES_TO_TRANSFER = ['products', 'product_category_name_translation', 'orders','order_items','order_reviews','customers','geolocation']
-
+TABLES_TO_TRANSFER = ['products', 'product_category_name_translation', 'orders','order_items','order_reviews','customers']
+    
+DEFAULT_ARGS = {
+'retries': 2,
+"retry_delay" :timedelta(minutes=2),
+}
 
 def create_table_execution_dag(table):
     current_file_path = Path(__file__).resolve()
@@ -20,11 +25,14 @@ def create_table_execution_dag(table):
 
     with open(schema_file_path) as schema_file:
         schema_fields = json.load(schema_file)
-    
+
     with DAG(
         f'transfer_{table}_pg-to-bq-menna',
+        default_args=DEFAULT_ARGS,
+        description=f"DAG to transfer {table} from postgres to bigquery",
         start_date=days_ago(1),
         catchup=False,
+        
     ) as dag:
         extract_pg_to_gcs = PostgresToGCSOperator(
             task_id=f'extract_{table}_to_gcs',
