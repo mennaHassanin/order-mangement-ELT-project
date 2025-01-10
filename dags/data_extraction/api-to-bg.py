@@ -3,6 +3,7 @@ from airflow.providers.google.cloud.transfers.gcs_to_bigquery import GCSToBigQue
 from airflow.providers.google.cloud.hooks.gcs import GCSHook
 from airflow.operators.python import PythonOperator
 from airflow.utils.dates import days_ago
+from datetime import timedelta
 import requests
 import logging
 import json
@@ -20,6 +21,7 @@ API_ENDPOINTS = {
 
 DEFAULT_ARGS = {
     'retries': 2,
+    'retry_delay':timedelta(minutes=2),
 }
 
 def create_api_to_bq_dag(endpoint_name, api_url):
